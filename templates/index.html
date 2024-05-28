@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Virtual Pet Simulator</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>Virtual Pet Simulator</h1>
+<div id="pet">
+<img src="pet-default.png" alt="Your pet">
+<div id="pet-info">
+<p>Name: {{ pet.name }}</p>
+<p>Description: {{ pet.description }}</p>
+</div>
+</div>
+<div id="actions">
+<button onclick="feedPet()">Feed</button>
+<button onclick="playWithPet()">Play</button>
+<button onclick="describePet()">Describe</button>
+<button onclick="teachPet()">Teach</button>
+</div>
+<script>
+const pet = {{ pet|tojson }};
+
+function feedPet() {
+fetch("/pet/action?action=feed", {
+method: "GET"
+})
+.then(response => response.json())
+.then(data => {
+pet.hunger = data.hunger;
+updatePetInfo();
+});
+}
+
+function playWithPet() {
+fetch("/pet/action?action=play", {
+method: "GET"
+})
+.then(response => response.json())
+.then(data => {
+pet.boredom = data.boredom;
+updatePetInfo();
+});
+}
+
+function describePet() {
+const description = prompt("Enter a description for your pet:");
+if (description) {
+fetch("/pet/action?action=describe&description=" + description, {
+method: "GET"
+})
+.then(response => response.json())
+.then(data => {
+pet.description = data.description;
+updatePetInfo();
+});
+}
+}
+
+function teachPet() {
+const trick = prompt("Enter a trick to teach your pet:");
+if (trick) {
+fetch("/pet/action?action=learn&trick=" + trick, {
+method: "GET"
+})
+.then(response => response.json())
+.then(data => {
+pet.tricks.push(data.trick);
+updatePetInfo();
+});
+}
+}
+
+function updatePetInfo() {
+document.getElementById("pet-info").innerHTML = `
+<p>Name: ${pet.name}</p>
+<p>Description: ${pet.description}</p>
+`;
+}
+</script>
+</body>
+</html>
+
